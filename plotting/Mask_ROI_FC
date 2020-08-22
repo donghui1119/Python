@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jul 23 14:54:30 2020
+
+@author: Donghui Song
+"""
+
+
+import os
+from nilearn import input_data
+import numpy as np
+from nilearn import plotting
+
+datadir='/home/donghui/rest'
+sublist="/home/donghui/rest/sublist.txt"
+ROI_mask='/home/donghui/rest/ROI/leftamy.nii'
+
+coord=[(-16,-5,-25)]
+
+listsub=open(sublist)
+
+count=0
+
+lines=len(open(sublist,"r").readlines())
+
+for sub in listsub: 
+    
+    sub=sub.rstrip()
+    with open('/home/donghui/rest/processed.txt','a') as f:
+          print(sub,file=f)
+    
+    prepdata=os.path.join(datadir,sub,'prep','_subject_id_'+sub, sub+'_ses-rest_run-01.nii.gz')
+   
+    
+    seed_masker=input_data.NiftiMasker(mask_img=ROI_mask,standardize=True,memory='nilearn_cache',memory_level=1,verbose=0)
+    seed_time_series=seed_masker.fit_transform(prepdata)
+    mean_seed_time_series=np.mean(seed_time_series,axis=1)
+    brain_masker=input_data.NiftiMasker(standardize=True,memory='nilearn_cache',memory_level=1,verbose=0,mask_strategy='template')
+
+    brain_time_series=brain_masker.fit_transform(prepdata)
+    
+    seed_to_voxel_correlations=(np.dot(brain_time_series.T,mean_seed_time_series) /
+                                mean_seed_time_series.shape[0]
+                                )
+    
+    seed_to_voxel_correlations_imgs=brain_masker.inverse_transform(seed_to_voxel_correlations.T)
+    display=plotting.plot_stat_map(seed_to_voxel_correlations_imgs,threshold=0.3,vmax=1,cut_coords=coord[0],title="left_amy_FC")
+    
+    FC_Result_dir=os.path.join(datadir,sub,"results")
+    FC_Result_dir_New=FC_Result_dir+"/FC"
+    if not os.path.exists(FC_Result_dir_New):
+           os.mkdir(FC_Result_dir_New)
+            
+    
+    fcpath=os.path.join(datadir,sub,"results","FC",sub+"_leftamy_FC_r.nii.gz")
+    seed_to_voxel_correlations_imgs.to_filename(fcpath)
+    display.add_markers(marker_coords=coord,marker_color='g',marker_size=300)
+    pathname=os.path.join(datadir,sub,"results","FC",sub+"_leftamy_FC.pdf")
+    display.savefig(pathname)
+    display.close()
+    
+    seed_to_voxel_correlations_fisher_z=np.arctanh(seed_to_voxel_correlations)
+    seed_to_voxel_correlations_fisher_z_img=brain_masker.inverse_transform(seed_to_voxel_correlations_fisher_z.T)
+    niiname=os.path.join(datadir,sub,"results","FC",sub+"_leftamy_FC_z.nii.gz")
+    seed_to_voxel_correlations_fisher_z_img.to_filename(niiname)
+    
+    """calculate the count for processed subjects"""
+    
+    count+=1
+    if count % 1 ==0:
+        percent=count/lines
+        print("\033[1;34mProceesed: N=" +str(count)+'  {:.2%}'.format(percent))
+        
+print('\033[1;33mCongradulation! You have processed all the data successfully!')
