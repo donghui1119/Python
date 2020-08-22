@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jul 31 10:35:15 2020
+
+@author: donghui
+"""
+
+
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jul 26 23:46:13 2020
+
+@author: DonghuiSong
+"""
+
+
+from nilearn import datasets
+from nilearn import surface
+from nilearn import plotting
+import os
+
+
+resultdir='/home/donghui/Downloads/result/test'
+
+files=os.listdir(resultdir)
+
+
+for filename in files:
+    
+    stastic_map=os.path.join(resultdir,filename)
+   
+    fsaverage=datasets.fetch_surf_fsaverage()
+
+    texture_right= surface.vol_to_surf(stastic_map,fsaverage.pial_right)
+    texture_left= surface.vol_to_surf(stastic_map,fsaverage.pial_left)
+
+    plotting.plot_surf_stat_map(fsaverage.infl_right,texture_right,hemi='right',
+                            title='surface to right brain',colorbar=True,
+                            threshold=0.12,bg_map=fsaverage.sulc_right,black_bg=True,output_file=filename+' surface to right brain.pdf')
+
+    plotting.plot_surf_stat_map(fsaverage.infl_left,texture_left,hemi='left',
+                            title='surface to left brain',colorbar=True,
+                            threshold=0.12,bg_map=fsaverage.sulc_left,black_bg=True,output_file=filename+' surface to left brain.pdf')
+
+    plotting.plot_glass_brain(stastic_map, display_mode='r',plot_abs=False,
+                          title='Glass brain', threshold=0.12,colorbar=True)
+    plotting.plot_stat_map(stastic_map, display_mode='z',threshold=0.12,
+                        cut_coords=5,title='slices',black_bg=True,output_file=filename+' slices.pdf')
+                       #cut_coords=range(0,51,10),title='slices',black_bg=True)
+
+    big_fsaverage=datasets.fetch_surf_fsaverage('fsaverage')
+
+    big_texture=surface.vol_to_surf(stastic_map,big_fsaverage.pial_right)
+
+    plotting.plot_surf_stat_map(big_fsaverage.infl_right, big_texture,
+                                hemi='right',colorbar=True, title=filename+' surface right brain:fine mesh',threshold=0.12, 
+                                bg_map=big_fsaverage.sulc_right,output_file=filename+' surface right brain: fine mesh.pdf')
+    plotting.plot_surf_stat_map(big_fsaverage.infl_left, big_texture,
+                                hemi='left',colorbar=True, title=filename+' surface left brain:fine mesh',threshold=0.12, 
+                                bg_map=big_fsaverage.sulc_left,view='lateral',bg_on_data=False,output_file=filename+' surface left brain:fine mesh.pdf')
+    plotting.show()
+
+#view=plotting.view_surf(fsaverage.infl_right,texture,threshold="99%",bg_map=fsaverage.sulc_right)
+
+#view.open_in_browser
+
+
+#view_web=plotting.view_img_on_surf(stastic_map,threshold="99%")
+#view_web.open_in_browser
+
+
+
