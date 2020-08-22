@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jul 26 14:01:34 2020
+
+@author: DonghuiSong
+"""
+from nilearn.image import threshold_img
+from nilearn.regions import RegionExtractor
+from nilearn import plotting
+from nilearn.regions import connected_regions
+Stastic_map=r"/home/donghui/Downloads/result/emotion_fALFF_smooth/r1.nii"
+temp=r"/home/donghui/Downloads/MRIcron_linux/mricron/Resources/templates/ch2bet.nii.gz"
+
+
+
+#threshold_percentile_img=threshold_img(Stastic_map,threshold='99.5%',copy=False)
+threshold_value_img=threshold_img(Stastic_map,threshold=0.11,copy=False)
+
+#regions_img,index= connected_regions(threshold_value_img,min_region_size=100)
+
+plotting.plot_stat_map(threshold_value_img,display_mode='z',cut_coords=5,title='threshold',colorbar=True,output_file='r.pdf')
+#plotting.plot_stat_map(threshold_percentile_img,display_mode='z',cut_coords=5,title='threshold',colorbar=False)
+#regions_value_img, index = connected_regions(threshold_value_img,min_region_size=150)
+view = plotting.view_img(threshold_value_img, threshold=0.11)
+#plotting.plot_prob_atlas(regions_img,display_mode='z',cut_coords=4,title='intensity value',colorbar=True)
+view.open_in_browser()
