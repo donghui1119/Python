@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jul 21 22:01:20 2020
+
+@author: donghui
+"""
+
+datadirnew='/home/donghui/rest'
+sublist='/home/donghui/rest/sublist.txt'
+
+listsub=open(sublist,'r')
+
+
+import os
+
+
+for sub in listsub:
+    sub=sub.rstrip()
+    prepdata=os.path.join(datadirnew,sub,'prep','_subject_id_'+sub, sub+'_ses_rest_run-01.nii.gz')
+    pcc_coord=[(0,-52,18)]
+from nilearn import input_data
+seed_masker=input_data.NiftiSpheresMasker(pcc_coord,radius=8,memory='nilearn_cache',memory_level=1,verbose=0)
+seed_time_series=seed_masker.fit_transform(prepdata)
+brain_masker=input_data.NiftiMasker(smoothing_fwhm=6,memory='nilearn_cache',memory_level=1,verbose=0,
+                                    mask_strategy='template')
+brain_time_series=brain_masker.fit_transform(prepdata)
+import numpy as np
+seed_to_voxel_correlations=(np.dot(brain_time_series.T,seed_time_series) /
+                            seed_time_series.shape[0]
+                            )
+from nilearn import plotting
+seed_to_voxel_correlations_imgs=brain_masker.inverse_transform(seed_to_voxel_correlations.T)
+display=plotting.plot_stat_map(seed_to_voxel_correlations_imgs,threshold=0,vmax=1,cut_coords=pcc_coord[0],title="pcc fc")
+    
+display.add_markers(marker_coords=pcc_coord,marker_color='g',marker_size=300)
+pathname=os.path.join(datadirnew,sub,sub+"pcc_fc.pdf")
+display.savefig(pathname)
+display.close()
+seed_to_voxel_correlations_fisher_z=np.arctanh(seed_to_voxel_correlations)
+seed_to_voxel_correlations_fisher_z_img=brain_masker.inverse_transform(seed_to_voxel_correlations_fisher_z.T)
+niiname=os.path.join(datadirnew,sub,sub+"pcc_fc.nii.gz")
+seed_to_voxel_correlations_fisher_z_img.to_filename(niiname)
+
