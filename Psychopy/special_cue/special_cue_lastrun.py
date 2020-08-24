@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2020.2.2),
-    on August 23, 2020, at 23:14
+    on August 24, 2020, at 16:22
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -104,7 +104,7 @@ target = visual.ShapeStim(
     vertices=[[-(0.5, 0.5)[0]/2.0,-(0.5, 0.5)[1]/2.0], [+(0.5, 0.5)[0]/2.0,-(0.5, 0.5)[1]/2.0], [0,(0.5, 0.5)[1]/2.0]],
     ori=0, pos=[0,0],
     lineWidth=1, lineColor=[-1.000,0.647,-0.584], lineColorSpace='rgb',
-    fillColor=[-0.420,1.000,-0.059], fillColorSpace='rgb',
+    fillColor=1.0, fillColorSpace='hsv',
     opacity=1, depth=-1.0, interpolate=True)
 key_resp = keyboard.Keyboard()
 
@@ -267,6 +267,8 @@ for thisTrial in trials:
                 target.frameNStop = frameN  # exact frame index
                 win.timeOnFlip(target, 'tStopRefresh')  # time at next scr refresh
                 target.setAutoDraw(False)
+        if target.status == STARTED:  # only update if drawing
+            target.setFillColor((t*90,1.000,0.5), log=False)
         
         # *key_resp* updates
         waitOnFlip = False

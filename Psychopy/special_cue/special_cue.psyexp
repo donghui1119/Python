@@ -62,8 +62,8 @@
       <PolygonComponent name="target">
         <Param name="disabled" updates="None" val="False" valType="bool"/>
         <Param name="durationEstim" updates="None" val="" valType="code"/>
-        <Param name="fillColor" updates="constant" val="$[-0.420,1.000,-0.059]" valType="str"/>
-        <Param name="fillColorSpace" updates="constant" val="rgb" valType="str"/>
+        <Param name="fillColor" updates="set every frame" val="$(t*90,1.000,0.5)" valType="str"/>
+        <Param name="fillColorSpace" updates="constant" val="hsv" valType="str"/>
         <Param name="interpolate" updates="constant" val="linear" valType="str"/>
         <Param name="lineColor" updates="constant" val="$[-1.000,0.647,-0.584]" valType="str"/>
         <Param name="lineColorSpace" updates="constant" val="rgb" valType="str"/>
